@@ -2,15 +2,27 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test.testcases import TestCase
 
 
-class BehaviorDrivenTestCase(StaticLiveServerTestCase):
+class BehaviorDrivenTestMixin(object):
+
+    def _pre_setup(self, run=False):
+        if run:
+            super(BehaviorDrivenTestMixin, self)._pre_setup()
+
+    def _post_teardown(self, run=False):
+        if run:
+            super(BehaviorDrivenTestMixin, self)._post_teardown()
+
+    def runTest(self):
+        pass
+
+
+class BehaviorDrivenTestCase(BehaviorDrivenTestMixin,
+                             StaticLiveServerTestCase):
     """
     Test case attached to the context during behave execution
 
     This test case prevents the regular tests from running.
     """
-
-    def runTest(self):
-        pass
 
 
 class ExistingDatabaseTestCase(BehaviorDrivenTestCase):
@@ -27,7 +39,7 @@ class ExistingDatabaseTestCase(BehaviorDrivenTestCase):
         pass
 
 
-class DjangoSimpleTestCase(TestCase):
+class DjangoSimpleTestCase(BehaviorDrivenTestMixin, TestCase):
     """
     Test case attached to the context during behave execution
 
@@ -41,6 +53,3 @@ class DjangoSimpleTestCase(TestCase):
 
     Also, it prevents the regular tests from running.
     """
-
-    def runTest(self):
-        pass
