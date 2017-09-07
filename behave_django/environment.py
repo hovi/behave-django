@@ -42,6 +42,9 @@ class BehaveHooksMixin(object):
         if getattr(context, 'fixtures', None):
             context.test.fixtures = context.fixtures
 
+        if getattr(context, 'reset_sequences', None):
+            context.test.reset_sequences = context.reset_sequences
+
         context.test._pre_setup(run=True)
         context.test.setUpClass()
         context.test()
