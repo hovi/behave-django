@@ -1,5 +1,4 @@
 from behave.runner import ModelRunner, Context
-from django.core.management import call_command
 from django.shortcuts import resolve_url
 
 

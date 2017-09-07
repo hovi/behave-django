@@ -31,6 +31,7 @@ class TestSimpleTestCase(DjangoSetupMixin):
         runner = Runner(mock.MagicMock())
         runner.context = Context(runner)
         SimpleTestRunner().patch_context(runner.context)
+        SimpleTestRunner().before_scenario(runner.context)
         with pytest.raises(AssertionError):
             assert runner.context.base_url == 'should raise an exception!'
 
@@ -38,5 +39,6 @@ class TestSimpleTestCase(DjangoSetupMixin):
         runner = Runner(mock.MagicMock())
         runner.context = Context(runner)
         SimpleTestRunner().patch_context(runner.context)
+        SimpleTestRunner().before_scenario(runner.context)
         with pytest.raises(AssertionError):
             runner.context.get_url()
