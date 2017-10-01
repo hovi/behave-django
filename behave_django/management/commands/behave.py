@@ -11,10 +11,24 @@ from behave_django.runner import (BehaviorDrivenTestRunner,
                                   SimpleTestRunner)
 
 
+test_runner_args = ("keepdb", "interactive", "failfast", "reverse")
+
 def add_command_arguments(parser):
     """
     Additional command line arguments for the behave management command
     """
+    parser.add_argument(
+        '--noinput', '--no-input', action='store_false', dest='interactive',
+        help='Tells Django to NOT prompt the user for input of any kind.',
+    )
+    parser.add_argument(
+        '--failfast', action='store_true', dest='failfast',
+        help='Tells Django to stop running the test suite after first failed test.',
+    )
+    parser.add_argument(
+        '-r', '--reverse', action='store_true', dest='reverse', default=False,
+        help='Reverses test cases order.',
+    )
     parser.add_argument(
         '--use-existing-database',
         action='store_true',
@@ -108,17 +122,16 @@ class Command(BaseCommand):
             ))
 
         # Configure django environment
+        runner_args = self.get_test_runner_args(options)
+        
         if options['dry_run'] or options['use_existing_database']:
-            django_test_runner = ExistingDatabaseTestRunner()
+            django_test_runner = ExistingDatabaseTestRunner(**runner_args)
         elif options['simple']:
-            django_test_runner = SimpleTestRunner()
+            django_test_runner = SimpleTestRunner(**runner_args)
         else:
-            django_test_runner = BehaviorDrivenTestRunner()
+            django_test_runner = BehaviorDrivenTestRunner(**runner_args)
 
         django_test_runner.setup_test_environment()
-
-        if options['keepdb']:
-            django_test_runner.keepdb = True
 
         old_config = django_test_runner.setup_databases()
 
@@ -133,6 +146,9 @@ class Command(BaseCommand):
 
         if exit_status != 0:
             sys.exit(exit_status)
+            
+    def get_test_runner_args(self, options):
+        return {key: options[key] for key in test_runner_args}
 
     def get_behave_args(self, argv=sys.argv):
         """
